@@ -7,6 +7,8 @@ RUN apt-get update --fix-missing
 RUN apt-get install -y gcc
 RUN apt-get install -y make
 RUN apt-get install -y build-essential
+RUN apt-get install -y python3 python3-matplotlib python3-scipy python3-numpy
+RUN apt-get install -y p7zip-full
 
 # Install autodriver
 WORKDIR /home
@@ -22,6 +24,17 @@ WORKDIR Tango/autodriver
 RUN make clean && make
 RUN cp autodriver /usr/bin/autodriver
 RUN chmod +s /usr/bin/autodriver
+
+# UTF-8 Locale - https://stackoverflow.com/a/46531235
+RUN export DEBIAN_FRONTEND=noninteractive; \
+  apt-get update -q -q && \
+  apt-get install --yes locales && \
+  locale-gen --no-purge en_US.UTF-8 && \
+  update-locale LANG=en_US.UTF-8 && \
+  echo locales locales/locales_to_be_generated multiselect en_US.UTF-8 UTF-8 | debconf-set-selections && \
+  echo locales locales/default_environment_locale select en_US.UTF-8 | debconf-set-selections && \
+  dpkg-reconfigure locales
+ENV LANG en_US.UTF-8
 
 # Clean up
 WORKDIR /home
